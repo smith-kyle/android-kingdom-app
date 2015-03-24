@@ -1,3 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Myriad Mobile Challenge</string>
+    <string name="title_activity_kingdom_list">KingdomListActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_logout">Log Out</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

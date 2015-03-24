@@ -1,13 +1,14 @@
-package com.dev.kylesmith.myriadmobilechallenge;
+package com.dev.kylesmith.myriadmobilechallenge.controller;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
-import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,40 +17,42 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.dev.kylesmith.myriadmobilechallenge.R;
+import com.dev.kylesmith.myriadmobilechallenge.model.Constants;
+
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.HttpsURLConnection;
 
-/**
- * A login screen that offers login via email/password.
- */
+
 public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+    protected String responseMessage;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private EditText mNameView;
     private View mProgressView;
     private View mLoginFormView;
 
@@ -58,21 +61,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        RedirectIfSignedUp();
+
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
+        mNameView = (EditText) findViewById(R.id.name);
+
 
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -86,9 +83,32 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mProgressView = findViewById(R.id.login_progress);
     }
 
+
+
+
+
+
+    private void RedirectIfSignedUp(){
+        SharedPreferences settings = getSharedPreferences(getString(R.string.SHARED_PREF_NAME), 0);
+        String userEmail = settings.getString(getString(R.string.USER_EMAIL_KEY), "");
+        if(!userEmail.isEmpty()){ // user has signed up
+            // Redirect to Kingdom List Activity
+            Intent intent = new Intent(this, KingdomListActivity.class);
+            startActivity(intent);
+        }
+    }
+
+
+
+
+
     private void populateAutoComplete() {
         getLoaderManager().initLoader(0, null, this);
     }
+
+
+
+
 
 
     /**
@@ -103,20 +123,20 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         // Reset errors.
         mEmailView.setError(null);
-        mPasswordView.setError(null);
+        mNameView.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String password = mNameView.getText().toString();
 
         boolean cancel = false;
         View focusView = null;
 
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
+        // Check for a valid name, if the user entered one.
+        if (!isNameValid(password)) {
+            mNameView.setError(getString(R.string.error_invalid_password));
+            focusView = mNameView;
             cancel = true;
         }
 
@@ -144,15 +164,33 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
     }
 
+
+
+
+
+
+
+
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
         return email.contains("@");
     }
 
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
+
+
+
+
+
+
+    private boolean isNameValid(String name) {
+        return  !TextUtils.isEmpty(name);
     }
+
+
+
+
+
+
+
 
     /**
      * Shows the progress UI and hides the login form.
@@ -190,6 +228,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
     }
 
+
+
+
+
+
+
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(this,
@@ -207,6 +251,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
+
+
+
+
+
+
+
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         List<String> emails = new ArrayList<String>();
@@ -219,10 +270,19 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         addEmailsToAutoComplete(emails);
     }
 
+
+
+
+
+
     @Override
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
 
     }
+
+
+
+
 
     private interface ProfileQuery {
         String[] PROJECTION = {
@@ -235,6 +295,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
 
+
+
+
+
+
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -243,6 +308,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         mEmailView.setAdapter(adapter);
     }
+
+
+
+
+
 
     /**
      * Represents an asynchronous login/registration task used to authenticate
@@ -263,21 +333,38 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // TODO: attempt authentication against a network service.
 
             try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
+                String url = "https://challenge2015.myriadapps.com/api/v1/subscribe";
+                java.net.URL obj = new java.net.URL(url);
+                HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+                con.setRequestMethod("POST");
+                String requestParameters = "email="+mEmail;
+
+                con.setDoOutput(true);
+                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+                wr.writeBytes(requestParameters);
+                wr.flush();
+                wr.close();
+
+                if(con.getResponseCode() != 200) return false;
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(con.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                JSONObject jsonObject = new JSONObject(response.toString());
+                responseMessage = jsonObject.getString("message");
+            } catch (Exception e) {
+                e.printStackTrace();
                 return false;
             }
 
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
             return true;
         }
 
@@ -287,10 +374,18 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
 
             if (success) {
-                finish();
+                // Save Email
+                SharedPreferences settings = getSharedPreferences(getString(R.string.SHARED_PREF_NAME), 0);
+                SharedPreferences.Editor editor = settings.edit();
+                editor.putString(getString(R.string.USER_EMAIL_KEY), mEmailView.getText().toString());
+                editor.commit();
+
+                // Open Kingdom List Page
+                Intent intent = new Intent(getApplicationContext(), KingdomListActivity.class);
+                startActivity(intent);
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                mEmailView.setError(getString(R.string.error_invalid_email));
+                mEmailView.requestFocus();
             }
         }
 
