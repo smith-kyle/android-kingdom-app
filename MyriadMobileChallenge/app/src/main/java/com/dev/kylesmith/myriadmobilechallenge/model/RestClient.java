@@ -9,20 +9,20 @@ import retrofit.client.OkClient;
  * Created by kylesmith on 3/24/15.
  */
 public class RestClient {
-    private static KingdomAPI REST_CLIENT;
+    private static API REST_CLIENT;
     private static String baseURL = "https://challenge2015.myriadapps.com/api/v1";
 
     static{
         initRestClient();
     }
 
-    public static KingdomAPI get(){
+    public static API get(){
         return REST_CLIENT;
     }
 
 
     private static void initRestClient(){
         RestAdapter restAdapter = new RestAdapter.Builder().setEndpoint(baseURL).setClient(new OkClient(new OkHttpClient())).setLogLevel(RestAdapter.LogLevel.FULL).build();
-        REST_CLIENT = restAdapter.create(KingdomAPI.class);
+        REST_CLIENT = restAdapter.create(API.class);
     }
 }

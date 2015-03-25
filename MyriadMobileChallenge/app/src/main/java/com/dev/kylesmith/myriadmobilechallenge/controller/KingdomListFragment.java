@@ -1,5 +1,6 @@
 package com.dev.kylesmith.myriadmobilechallenge.controller;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
 import com.dev.kylesmith.myriadmobilechallenge.model.Kingdom;
@@ -73,12 +75,13 @@ public class KingdomListFragment extends Fragment {
 
 
     // Holder for recycler view items
-    private class KingdomHolder extends RecyclerView.ViewHolder{
+    private class KingdomHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         private Kingdom kingdom;
         private ImageView kingdomImage;
         private TextView kingdomName;
         public KingdomHolder(View v){
             super(v);
+            v.setOnClickListener(this);
             kingdomImage = (ImageView) v.findViewById(R.id.kingdom_image);
             kingdomName = (TextView) v.findViewById(R.id.kingdom_name);
         }
@@ -88,6 +91,17 @@ public class KingdomListFragment extends Fragment {
             Picasso.with(getActivity()).load(kingdom.getImage()).into(kingdomImage);
             kingdomName.setText(kingdom.getName());
         }
+
+        @Override
+        public void onClick(View v){
+            if(kingdom != null){
+                Intent intent = new Intent(getActivity(), QuestActivity.class);
+                intent.putExtra(getString(R.string.KINGDOM_ID_KEY), kingdom.id);
+                startActivity(intent);
+            }
+        }
+
+
     }
 
 

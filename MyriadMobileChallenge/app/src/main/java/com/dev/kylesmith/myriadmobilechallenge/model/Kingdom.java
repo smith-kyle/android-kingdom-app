@@ -1,5 +1,7 @@
 package com.dev.kylesmith.myriadmobilechallenge.model;
 
+import java.util.List;
+
 /**
  * Created by kylesmith on 3/24/15.
  */
@@ -7,6 +9,9 @@ public class Kingdom {
     public int id;
     public String name;
     public String image;
+    public String climate;
+    public int population;
+    public List<quest> quests;
 
     public Kingdom(){
         id = 0;

@@ -2,4 +2,5 @@
 <resources>
     <string name="USER_EMAIL_KEY">_user_email_key</string>
     <string name="SHARED_PREF_NAME">_myriad_mobile_shared_pref</string>
+    <string name="KINGDOM_ID_KEY">_kingdom_id</string>
 </resources>
