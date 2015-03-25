@@ -27,7 +27,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
-import com.dev.kylesmith.myriadmobilechallenge.model.Constants;
+
 
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
