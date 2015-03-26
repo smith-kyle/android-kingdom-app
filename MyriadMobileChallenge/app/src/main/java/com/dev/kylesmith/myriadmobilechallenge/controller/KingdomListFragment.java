@@ -88,7 +88,7 @@ public class KingdomListFragment extends Fragment {
 
         public void bindKingdom(Kingdom kingdom){
             this.kingdom = kingdom;
-            Picasso.with(getActivity()).load(kingdom.getImage()).into(kingdomImage);
+            Picasso.with(getActivity()).load(kingdom.getImage()).fit().centerCrop().into(kingdomImage) ;
             kingdomName.setText(kingdom.getName());
         }
 
