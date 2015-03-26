@@ -74,13 +74,24 @@ public class QuestActivity extends FragmentActivity {
 
         @Override
         public android.support.v4.app.Fragment getItem(int position) {
-            quest q = mKingdom.quests.get(position);
-            return QuestSlidePageFragment.newInstance(q.id, q.name, q.giver.id, q.giver.name, q.giver.image);
+            if(position == 0){
+                return KingdomSlidePageFragment.newInstance(mKingdom.id, mKingdom.getName(), mKingdom.climate, mKingdom.population, mKingdom.getImage());
+            }
+            else {
+                quest q = mKingdom.quests.get(position);
+                return QuestSlidePageFragment.newInstance(q.id, q.name, q.giver.id, q.giver.name, q.giver.image);
+            }
         }
 
         @Override
         public int getCount() {
             return number_of_quests;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            if(position == 0) return mKingdom.getName();
+            else return mKingdom.quests.get(position).name;
         }
     }
 }
