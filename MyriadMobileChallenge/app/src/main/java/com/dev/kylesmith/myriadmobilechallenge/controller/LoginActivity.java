@@ -24,9 +24,14 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
+import com.dev.kylesmith.myriadmobilechallenge.model.RestClient;
+import com.dev.kylesmith.myriadmobilechallenge.model.SubscriptionResponse;
+import com.dev.kylesmith.myriadmobilechallenge.model.User;
 
 
 import org.apache.http.util.EntityUtils;
@@ -41,14 +46,23 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
 
-public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
+
+public class LoginActivity extends Activity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
-    private UserLoginTask mAuthTask = null;
+
     protected String responseMessage;
+    private String subscriptionResponseMessage;
+    private RestClient restClient = new RestClient();
+    private FrameLayout mProgressBarHolder;
+    private Button mEmailSignInButton;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -66,12 +80,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
+        mProgressBarHolder = (FrameLayout) findViewById(R.id.progressBarHolder);
         mNameView = (EditText) findViewById(R.id.name);
 
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,24 +115,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 
 
-    private void populateAutoComplete() {
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-
-
-
-
-
     /**
      * Attempts to sign in or register the account specified by the login form.
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -159,8 +160,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            restClient.get().subscribe(new User(email), new SubscriptionCallback());
         }
     }
 
@@ -195,36 +195,16 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     /**
      * Shows the progress UI and hides the login form.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        if(show){
+            mEmailSignInButton.setEnabled(false);
+            mProgressBarHolder.setAnimation(new Animations().getInAnimation());
+            mProgressBarHolder.setVisibility(View.VISIBLE);
+        }
+        else{
+            mEmailSignInButton.setEnabled(true);
+            mProgressBarHolder.setAnimation(new Animations().getOutAnimation());
+            mProgressBarHolder.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -232,167 +212,30 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 
 
-
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-
-
-
-
-
-
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<String>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-
-
-
-
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-
-
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-
-
-
-
-
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-
-
-
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
+    private class SubscriptionCallback implements Callback<SubscriptionResponse>{
         @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+        public void success(SubscriptionResponse subscriptionResponse, Response response2) {
+            // Save user email
+            SharedPreferences settings = getSharedPreferences(getString(R.string.SHARED_PREF_NAME), 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString(getString(R.string.USER_EMAIL_KEY), mEmailView.getText().toString());
+            editor.commit();
 
-            try {
-                String url = "https://challenge2015.myriadapps.com/api/v1/subscribe";
-                java.net.URL obj = new java.net.URL(url);
-                HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-
-                con.setRequestMethod("POST");
-                String requestParameters = "email="+mEmail;
-
-                con.setDoOutput(true);
-                DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-                wr.writeBytes(requestParameters);
-                wr.flush();
-                wr.close();
-
-                if(con.getResponseCode() != 200) return false;
-
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                JSONObject jsonObject = new JSONObject(response.toString());
-                responseMessage = jsonObject.getString("message");
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
             showProgress(false);
 
-            if (success) {
-                // Save Email
-                SharedPreferences settings = getSharedPreferences(getString(R.string.SHARED_PREF_NAME), 0);
-                SharedPreferences.Editor editor = settings.edit();
-                editor.putString(getString(R.string.USER_EMAIL_KEY), mEmailView.getText().toString());
-                editor.commit();
-
-                // Open Kingdom List Page
-                Intent intent = new Intent(getApplicationContext(), KingdomListActivity.class);
-                startActivity(intent);
-            } else {
-                mEmailView.setError(getString(R.string.error_invalid_email));
-                mEmailView.requestFocus();
-            }
+            // Open Kingdom List Page
+            Intent intent = new Intent(getApplicationContext(), KingdomListActivity.class);
+            startActivity(intent);
         }
 
         @Override
-        protected void onCancelled() {
-            mAuthTask = null;
+        public void failure(RetrofitError error) {
+            // Remove progress
             showProgress(false);
+
+            // Display email error
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            mEmailView.requestFocus();
         }
     }
 }
