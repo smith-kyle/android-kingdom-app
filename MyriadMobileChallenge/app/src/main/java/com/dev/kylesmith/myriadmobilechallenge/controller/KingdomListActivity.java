@@ -20,10 +20,6 @@ public class KingdomListActivity extends ActionBarActivity {
         setContentView(R.layout.activity_kingdom_list);
         settings = getSharedPreferences(getString(R.string.SHARED_PREF_NAME), 0);
         setTitle(settings.getString(getString(R.string.USER_EMAIL_KEY), "No email found"));
-
-        // Replace Actionbar with Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
     }
 
 

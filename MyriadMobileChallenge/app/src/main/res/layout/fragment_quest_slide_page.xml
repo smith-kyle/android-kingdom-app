@@ -10,21 +10,59 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="10dp"
                 android:orientation="vertical">
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="100dp"
-                android:id="@+id/quest_name"
-                android:textSize="40dp"/>
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="100dp"
-                android:id="@+id/giver_name"
-                android:textSize="40dp"/>
-            <ImageView
-                android:id="@+id/giver_image"
-                android:layout_width="fill_parent"
-                android:layout_height="300dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:background="@drawable/container_dropshadow"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/quest_name"
+                        android:textSize="30dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#000" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:textSize="@dimen/p"
+                        android:paddingTop="10dp"
+                        android:id="@+id/quest_description"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="15dp"
+                    android:background="@drawable/container_dropshadow"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/giver_name"
+                        android:textSize="30dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#000" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:textSize="@dimen/p"
+                        android:paddingTop="10dp"
+                        android:id="@+id/giver_description"/>
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/giver_image"
+                    android:layout_width="fill_parent"
+                    android:layout_height="300dp"
+                    android:background="@drawable/container_dropshadow"/>
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

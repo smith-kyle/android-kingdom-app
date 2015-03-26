@@ -12,6 +12,7 @@ public class Kingdom {
     public String climate;
     public int population;
     public List<quest> quests;
+    public String language = "";
 
     public Kingdom(){
         id = 0;

@@ -7,4 +7,5 @@ public class giver {
     public int id;
     public String name;
     public String image;
+    public String description = "";
 }

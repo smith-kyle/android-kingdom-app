@@ -7,7 +7,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.Window;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
 import com.dev.kylesmith.myriadmobilechallenge.model.Kingdom;
@@ -26,15 +29,19 @@ public class QuestActivity extends FragmentActivity {
     private int number_of_quests;
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_quest);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         // Get Kingdom ID that was passed into activity and retrieve more detailed information
         mKingdomID = getIntent().getIntExtra(getString(R.string.KINGDOM_ID_KEY), -1);
         if(mKingdomID != -1) restClient.get().getQuests(mKingdomID, new QuestCallback());
+
+        mToolbar = (Toolbar) findViewById(R.id.quest_toolbar);
     }
 
 
@@ -47,8 +54,6 @@ public class QuestActivity extends FragmentActivity {
     }
 
 
-
-
     private class QuestCallback implements Callback<Kingdom> {
         @Override
         public void success(Kingdom kingdom, Response response) {
@@ -56,6 +61,7 @@ public class QuestActivity extends FragmentActivity {
             number_of_quests = mKingdom.quests.size();
             mPager = (ViewPager) findViewById(R.id.pager);
             mPager.setAdapter(mPagerAdapter);
+            mToolbar.setTitle(mKingdom.getName());
         }
 
         @Override
@@ -75,11 +81,11 @@ public class QuestActivity extends FragmentActivity {
         @Override
         public android.support.v4.app.Fragment getItem(int position) {
             if(position == 0){
-                return KingdomSlidePageFragment.newInstance(mKingdom.id, mKingdom.getName(), mKingdom.climate, mKingdom.population, mKingdom.getImage());
+                return KingdomSlidePageFragment.newInstance(mKingdom.id, mKingdom.getName(), mKingdom.climate, mKingdom.population, mKingdom.getImage(), mKingdom.language);
             }
             else {
                 quest q = mKingdom.quests.get(position);
-                return QuestSlidePageFragment.newInstance(q.id, q.name, q.giver.id, q.giver.name, q.giver.image);
+                return QuestSlidePageFragment.newInstance(q.id, q.name, q.giver.id, q.giver.name, q.giver.image, q.giver.description, q.description);
             }
         }
 
