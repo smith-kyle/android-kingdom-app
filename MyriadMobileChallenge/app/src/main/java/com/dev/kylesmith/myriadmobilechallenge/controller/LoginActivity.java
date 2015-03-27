@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -18,14 +19,18 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
@@ -65,7 +70,7 @@ public class LoginActivity extends Activity {
     private Button mEmailSignInButton;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private EditText mEmailView;
     private EditText mNameView;
     private View mProgressView;
     private View mLoginFormView;
@@ -79,7 +84,21 @@ public class LoginActivity extends Activity {
 
 
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView = (EditText) findViewById(R.id.email);
+        mEmailView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_DONE){
+                    View view = getCurrentFocus();
+                    attemptLogin();
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    return true;
+                }
+                return false;
+            }
+        });
+
         mProgressBarHolder = (FrameLayout) findViewById(R.id.progressBarHolder);
         mNameView = (EditText) findViewById(R.id.name);
 
@@ -100,7 +119,6 @@ public class LoginActivity extends Activity {
 
 
 
-
     private void RedirectIfSignedUp(){
         SharedPreferences settings = getSharedPreferences(getString(R.string.SHARED_PREF_NAME), 0);
         String userEmail = settings.getString(getString(R.string.USER_EMAIL_KEY), "");
@@ -108,11 +126,9 @@ public class LoginActivity extends Activity {
             // Redirect to Kingdom List Activity
             Intent intent = new Intent(this, KingdomListActivity.class);
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
     }
-
-
-
 
 
     /**
@@ -165,32 +181,14 @@ public class LoginActivity extends Activity {
     }
 
 
-
-
-
-
-
-
     private boolean isEmailValid(String email) {
         return email.contains("@");
     }
 
 
-
-
-
-
-
     private boolean isNameValid(String name) {
         return  !TextUtils.isEmpty(name);
     }
-
-
-
-
-
-
-
 
     /**
      * Shows the progress UI and hides the login form.
@@ -226,6 +224,7 @@ public class LoginActivity extends Activity {
             // Open Kingdom List Page
             Intent intent = new Intent(getApplicationContext(), KingdomListActivity.class);
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
 
         @Override

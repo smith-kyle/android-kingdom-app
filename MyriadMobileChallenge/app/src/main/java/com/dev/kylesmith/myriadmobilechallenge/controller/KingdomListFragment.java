@@ -96,6 +96,7 @@ public class KingdomListFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), QuestActivity.class);
                 intent.putExtra(getString(R.string.KINGDOM_ID_KEY), kingdom.id);
                 startActivity(intent);
+                getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         }
 

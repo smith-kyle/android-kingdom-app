@@ -5,11 +5,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.Window;
+import android.view.MenuItem;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
 import com.dev.kylesmith.myriadmobilechallenge.model.Kingdom;
@@ -34,18 +33,35 @@ public class QuestActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quest);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_TITLE);
+        getSupportActionBar().setLogo(R.drawable.myriad_logo);
+        getSupportActionBar().setDisplayUseLogoEnabled(true);
         // Get Kingdom ID that was passed into activity and retrieve more detailed information
         mKingdomID = getIntent().getIntExtra(getString(R.string.KINGDOM_ID_KEY), -1);
         if(mKingdomID != -1) restClient.get().getQuests(mKingdomID, new QuestCallback());
-
+        setTitle("");
     }
 
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
 
     // When back button is pressed switch to previous slide if not on the last slide
     @Override
     public void onBackPressed() {
-        if(mPager.getCurrentItem() == 0) super.onBackPressed();
+        if(mPager.getCurrentItem() == 0) {
+            super.onBackPressed();
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
         else mPager.setCurrentItem(mPager.getCurrentItem()-1);
     }
 

@@ -18,6 +18,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
+                style="@style/PagerTitleStrip"
                 android:background="@color/MyriadBlue"
                 android:textColor="#fff"
                 android:paddingTop="4dp"
