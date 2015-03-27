@@ -16,6 +16,7 @@
         <activity
             android:name=".controller.LoginActivity"
             android:label="@string/app_name"
+            android:noHistory="true"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,10 +28,19 @@
             android:name=".controller.KingdomListActivity"
             android:label="@string/title_activity_kingdom_list"
             android:theme="@style/AppTheme" >
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <activity
             android:name=".controller.QuestActivity"
             android:label="@string/title_activity_quest" >
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                android:value=".controller.KingdomListActivity" />
+        </activity>
+        <activity android:name=".controller.SearchResultActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
         </activity>
     </application>
 

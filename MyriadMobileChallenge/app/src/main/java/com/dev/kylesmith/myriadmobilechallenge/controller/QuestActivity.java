@@ -1,12 +1,11 @@
 package com.dev.kylesmith.myriadmobilechallenge.controller;
 
-import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -21,7 +20,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class QuestActivity extends FragmentActivity {
+public class QuestActivity extends ActionBarActivity {
 
     private int mKingdomID;
     private Kingdom mKingdom;
@@ -29,19 +28,16 @@ public class QuestActivity extends FragmentActivity {
     private int number_of_quests;
     private ViewPager mPager;
     private PagerAdapter mPagerAdapter;
-    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_quest);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         // Get Kingdom ID that was passed into activity and retrieve more detailed information
         mKingdomID = getIntent().getIntExtra(getString(R.string.KINGDOM_ID_KEY), -1);
         if(mKingdomID != -1) restClient.get().getQuests(mKingdomID, new QuestCallback());
 
-        mToolbar = (Toolbar) findViewById(R.id.quest_toolbar);
     }
 
 
@@ -61,7 +57,7 @@ public class QuestActivity extends FragmentActivity {
             number_of_quests = mKingdom.quests.size();
             mPager = (ViewPager) findViewById(R.id.pager);
             mPager.setAdapter(mPagerAdapter);
-            mToolbar.setTitle(mKingdom.getName());
+            setTitle(mKingdom.getName());
         }
 
         @Override
@@ -69,7 +65,6 @@ public class QuestActivity extends FragmentActivity {
             Log.e("QUEST API", error.toString());
         }
     }
-
 
 
 

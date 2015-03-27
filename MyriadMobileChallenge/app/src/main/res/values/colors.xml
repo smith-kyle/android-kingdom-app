@@ -140,4 +140,8 @@
     <color name="DarkBlue">#00008B</color>
     <color name="Navy">#000080</color>
     <color name="Black">#000000</color>
+    <color name="MyriadBlue">#4fbfb5</color>
+    <color name="MyriadBlueTrans">#DD4fbfb5</color>
+    <color name="MyriadDarkBlue">#198a92</color>
+    <color name="MyriadDarkBlueTrans">#80198a92</color>
 </resources>

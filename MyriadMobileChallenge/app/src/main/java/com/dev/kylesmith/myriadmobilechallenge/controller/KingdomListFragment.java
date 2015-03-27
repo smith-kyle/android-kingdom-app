@@ -1,7 +1,6 @@
 package com.dev.kylesmith.myriadmobilechallenge.controller;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,10 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dev.kylesmith.myriadmobilechallenge.R;
 import com.dev.kylesmith.myriadmobilechallenge.model.Kingdom;
@@ -31,6 +28,7 @@ public class KingdomListFragment extends Fragment {
 
     RecyclerView mRecyclerView;
     List<Kingdom> mKingdoms;
+    List<Kingdom> allKingdoms;
     RestClient restClient = new RestClient();
     KingdomAdapter kingdomAdapter;
     @Override
@@ -50,7 +48,6 @@ public class KingdomListFragment extends Fragment {
         mRecyclerView.setAdapter(kingdomAdapter);
 
         return v;
-
     }
 
 
@@ -62,6 +59,7 @@ public class KingdomListFragment extends Fragment {
         public void success(List<Kingdom> kingdoms, Response response){
             mKingdoms = kingdoms;
             kingdomAdapter.notifyDataSetChanged();
+            allKingdoms = new ArrayList<Kingdom>(kingdoms);
         }
 
         @Override
@@ -127,5 +125,22 @@ public class KingdomListFragment extends Fragment {
             if(mKingdoms == null) return 0;
             return mKingdoms.size();
         }
+    }
+
+
+
+
+    public void updateList(String q){
+        mKingdoms = new ArrayList<Kingdom>(allKingdoms);
+        for(int i = 0 ; i < mKingdoms.size(); i++){
+            if(!mKingdoms.get(i).getName().toUpperCase().contains(q.toUpperCase())){
+                mKingdoms.remove(i);
+                i--;
+            }
+        }
+
+        if(q.isEmpty()) mKingdoms = allKingdoms;
+
+        kingdomAdapter.notifyDataSetChanged();
     }
 }

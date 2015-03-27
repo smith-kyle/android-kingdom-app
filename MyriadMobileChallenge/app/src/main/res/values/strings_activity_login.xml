@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Strings related to login -->
-    <string name="sign_up_title">SIGN UP.</string>
+    <string name="sign_up_title">SIGN UP</string>
     <string name="prompt_email">E-Mail</string>
     <string name="prompt_name">Name</string>
     <string name="action_sign_in">SUBMIT</string>

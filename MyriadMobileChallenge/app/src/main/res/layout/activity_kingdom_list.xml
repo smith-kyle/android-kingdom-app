@@ -4,13 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.dev.kylesmith.myriadmobilechallenge.controller.KingdomListActivity">
-    <!--<android.support.v7.widget.Toolbar-->
-        <!--android:id="@+id/toolbar"-->
-        <!--android:minHeight="?attr/actionBarSize"-->
-        <!--android:background="#2196F3"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content">-->
-    <!--</android.support.v7.widget.Toolbar>-->
     <fragment
         android:id="@+id/list"
         android:name="com.dev.kylesmith.myriadmobilechallenge.controller.KingdomListFragment"
