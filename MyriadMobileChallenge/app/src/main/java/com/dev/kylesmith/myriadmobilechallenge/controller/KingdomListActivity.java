@@ -97,6 +97,7 @@ public class KingdomListActivity extends ActionBarActivity implements android.wi
             editor.remove(getString(R.string.USER_EMAIL_KEY));
             editor.commit();
             Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
